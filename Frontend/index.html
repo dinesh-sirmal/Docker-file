@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Notes App</title>
+</head>
+<body>
+    <h1>Simple Notes App 📝</h1>
+
+    <input type="text" id="note" placeholder="Write your note here">
+    <button onclick="saveNote()">Save</button>
+
+    <h2>Saved Notes:</h2>
+    <ul id="notesList"></ul>
+
+<script>
+function saveNote() {
+    let content = document.getElementById("note").value;
+
+    fetch("http://localhost:5000/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: content })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        loadNotes();
+    });
+}
+
+function loadNotes() {
+    fetch("http://localhost:5000/notes")
+    .then(res => res.json())
+    .then(data => {
+        let list = document.getElementById("notesList");
+        list.innerHTML = "";
+        data.forEach(note => {
+            let li = document.createElement("li");
+            li.textContent = note[1];
+            list.appendChild(li);
+        });
+    });
+}
+
+loadNotes();
+</script>
+
+</body>
+</html>
