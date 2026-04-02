@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: lab2-backend:latest
+        ports:
+        - containerPort: 5000
+        env:
+        - name: MYSQL_HOST
+          value: db
+        - name: MYSQL_PORT
+          value: "3306"
+        - name: MYSQL_USER
+          value: root
+        - name: MYSQL_PASSWORD
+          value: rootpassword
+        - name: MYSQL_DATABASE
+          value: mydb
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        # optional: wait-for-it script to delay until DB is ready
+        command: ["sh", "-c", "until nc -z $MYSQL_HOST $MYSQL_PORT; do echo waiting for db; sleep 5; done; python /app/app.py"]
