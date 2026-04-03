@@ -1,14 +1,9 @@
 from flask import Flask, request, jsonify
-import mysql.connector
+
 
 app = Flask(__name__)
 
-db = mysql.connector.connect(
-    host="db",
-    user="root",
-    password="root",
-    database="notesdb"
-)
+
 
 cursor = db.cursor()
 
