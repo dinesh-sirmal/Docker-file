@@ -1,27 +1,39 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKER_COMPOSE_PATH = "${WORKSPACE}/docker-compose.yml"
+    }
+
     stages {
-
-        stage('Clone Code') {
+        stage('Clone Repository') {
             steps {
-                echo "Cloning repository..."
-                git 'https://github.com/dinesh-sirmal/Docker-file.git'
+                git url: 'https://github.com/dinesh-sirmal/Docker-file.git', branch: 'main'
             }
         }
 
-        stage('Build & Run Containers') {
+        stage('Build Docker Images') {
             steps {
-                echo "Running Docker Compose..."
-                sh 'docker compose down || true'
-                sh 'docker compose up -d --build'
+                sh 'docker-compose -f $DOCKER_COMPOSE_PATH build'
             }
         }
 
-        stage('Verify') {
+        stage('Run Docker Containers') {
+            steps {
+                sh 'docker-compose -f $DOCKER_COMPOSE_PATH up -d'
+            }
+        }
+
+        stage('Check Running Containers') {
             steps {
                 sh 'docker ps'
             }
+        }
+    }
+
+    post {
+        always {
+            echo 'CI/CD pipeline finished.'
         }
     }
 }
