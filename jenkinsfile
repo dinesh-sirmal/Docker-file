@@ -1,39 +1,26 @@
 pipeline {
     agent any
 
-    environment {
-        IMAGE_NAME = "lab2_app_image"
-        CONTAINER_NAME = "lab2_app_container"
-    }
-
     stages {
-        stage('Checkout Code') {
+
+        stage('Clone Code') {
             steps {
-                // Pull code from your GitHub repository
-                git branch: 'main', url: 'https://github.com/dinesh-sirmal/Docker-file.git'
+                echo "Cloning repository..."
+                git 'https://github.com/dinesh-sirmal/Docker-file.git'
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build & Run Containers') {
             steps {
-                // Build Docker image using Dockerfile in the project root
-                sh "docker build -t $IMAGE_NAME ."
-            }
-        }
-
-        stage('Run Docker Container') {
-            steps {
-                // Stop and remove any existing container
-                sh "docker rm -f $CONTAINER_NAME || true"
-                // Run new container
-                sh "docker run -d --name $CONTAINER_NAME -p 8080:8080 $IMAGE_NAME"
+                echo "Running Docker Compose..."
+                sh 'docker compose down || true'
+                sh 'docker compose up -d --build'
             }
         }
 
         stage('Verify') {
             steps {
-                // Show running containers
-                sh "docker ps"
+                sh 'docker ps'
             }
         }
     }
