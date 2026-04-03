@@ -1,18 +1,9 @@
 from flask import Flask, request, jsonify
 
-
 app = Flask(__name__)
 
-
-
-cursor = db.cursor()
-
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS notes (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    content TEXT
-)
-""")
+# In-memory storage instead of MySQL
+notes = []
 
 @app.route("/")
 def home():
@@ -22,17 +13,12 @@ def home():
 def add_note():
     data = request.json
     content = data["content"]
-
-    cursor.execute("INSERT INTO notes (content) VALUES (%s)", (content,))
-    db.commit()
-
+    notes.append({"id": len(notes)+1, "content": content})
     return jsonify({"message": "Note saved successfully!"})
 
 @app.route("/notes", methods=["GET"])
 def get_notes():
-    cursor.execute("SELECT * FROM notes")
-    result = cursor.fetchall()
-    return jsonify(result)
+    return jsonify(notes)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
